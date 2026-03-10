@@ -18,13 +18,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       font-family: 'Nunito', sans-serif;
       position: relative;
       overflow-x: hidden;
       overflow-y: auto;
       padding: 20px;
     }
+    /* Center content when it fits; collapse and scroll when it overflows */
+    body::before, body::after { content: ''; flex: 1; }
 
     .ocean-overlay {
       position: fixed;
