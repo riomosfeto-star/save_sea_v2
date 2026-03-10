@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Save Our Sea</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background-color: #012a4a;
+      background-image: url('pictures/underwater.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: 'Nunito', sans-serif;
+      position: relative;
+    }
+
+    /* Ocean overlay */
+    .ocean-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(0,30,60,0.65) 0%,
+        rgba(0,70,120,0.45) 40%,
+        rgba(0,100,150,0.5) 100%
+      );
+      z-index: 0;
+    }
+
+    /* Bubbles */
+    .bubbles-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.6), rgba(255,255,255,0.05));
+      border: 1.5px solid rgba(255,255,255,0.35);
+      animation: riseBubble linear infinite;
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.2);
+    }
+    @keyframes riseBubble {
+      0%   { transform: translateX(0) scale(1);   opacity: 0.85; }
+      25%  { transform: translateX(12px) scale(1.03); }
+      50%  { transform: translateX(-10px) scale(0.97); }
+      75%  { transform: translateX(8px) scale(1.02); }
+      100% { transform: translateX(0) scale(1);   opacity: 0; bottom: 105vh; }
+    }
+
+    /* Wave bottom */
+    .wave-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 80px;
+      background: linear-gradient(0deg, rgba(0,119,182,0.6), transparent);
+      z-index: 1;
+      animation: wavePulse 3s ease-in-out infinite alternate;
+    }
+    @keyframes wavePulse {
+      0%   { height: 60px; }
+      100% { height: 100px; }
+    }
+
+    /* Main card */
+    .card {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 50px 60px 40px;
+      background: rgba(0, 50, 100, 0.55);
+      border: 2px solid rgba(144, 224, 239, 0.45);
+      border-radius: 32px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,180,216,0.25);
+      text-align: center;
+      animation: cardFloat 4s ease-in-out infinite alternate;
+    }
+    @keyframes cardFloat {
+      0%   { transform: translateY(0px); }
+      100% { transform: translateY(-12px); }
+    }
+
+    /* Welcome text */
+    .welcome-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(3.5rem, 9vw, 6rem);
+      color: #fff;
+      text-shadow:
+        0 0 20px rgba(0,220,255,0.9),
+        0 0 40px rgba(0,180,216,0.7),
+        0 0 80px rgba(0,119,182,0.5),
+        3px 3px 0 rgba(0,0,0,0.3);
+      letter-spacing: 4px;
+      animation: glowPulse 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes glowPulse {
+      0%   { text-shadow: 0 0 20px rgba(0,220,255,0.9), 0 0 40px rgba(0,180,216,0.7), 3px 3px 0 rgba(0,0,0,0.3); }
+      100% { text-shadow: 0 0 35px rgba(0,255,255,1),   0 0 70px rgba(0,220,255,0.9), 3px 3px 0 rgba(0,0,0,0.3); }
+    }
+
+    .welcome-sub {
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: #90e0ef;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px rgba(0,180,216,0.8);
+    }
+
+    /* Sea lion */
+    .sealion-img {
+      width: clamp(120px, 20vw, 180px);
+      filter: drop-shadow(0 0 20px rgba(0,200,255,0.6));
+      animation: bounce 3s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50%       { transform: translateY(-14px) rotate(3deg); }
+    }
+
+    /* Play button */
+    .btn-play {
+      margin-top: 10px;
+      padding: 16px 60px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      color: #012a4a;
+      background: linear-gradient(135deg, #00d4ff, #0096c7, #0077b6);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 6px 25px rgba(0,180,216,0.7),
+        0 0 0 3px rgba(144,224,239,0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-play::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -75%;
+      width: 50%; height: 200%;
+      background: rgba(255,255,255,0.35);
+      transform: skewX(-20deg);
+      animation: shine 2.5s ease-in-out infinite;
+    }
+    @keyframes shine {
+      0%   { left: -75%; }
+      100% { left: 125%; }
+    }
+    .btn-play:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 10px 35px rgba(0,180,216,0.9), 0 0 0 4px rgba(144,224,239,0.5);
+    }
+    .btn-play:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* Fish decoration */
+    .fish {
+      position: fixed;
+      font-size: 2rem;
+      animation: swimFish linear infinite;
+      z-index: 2;
+      opacity: 0.6;
+    }
+    @keyframes swimFish {
+      0%   { transform: translateX(-100px); }
+      49%  { transform: translateX(calc(100vw + 100px)); }
+      50%  { transform: translateX(calc(100vw + 100px)) scaleX(-1); }
+      99%  { transform: translateX(-100px) scaleX(-1); }
+      100% { transform: translateX(-100px) scaleX(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ocean-overlay"></div>
+
+  <div class="bubbles-container" id="bubblesContainer"></div>
+  <div class="wave-bar"></div>
+
+  <!-- Decorative fish -->
+  <div class="fish" style="top:15%; animation-duration:18s; animation-delay:0s;">🐠</div>
+  <div class="fish" style="top:70%; animation-duration:25s; animation-delay:-8s; font-size:1.4rem;">🐟</div>
+  <div class="fish" style="top:45%; animation-duration:20s; animation-delay:-13s; font-size:1.1rem;">🐡</div>
+
+  <div class="card">
+    <div class="welcome-title">WELCOME</div>
+    <div class="welcome-sub">Let's Save Our Sea! 🌊</div>
+    <img class="sealion-img" src="pictures/sealion_smile.png" alt="Sea Lion" />
+    <button class="btn-play" onclick="goPlay()">▶ PLAY</button>
+  </div>
+
+  <script>
+    // Generate bubbles
+    const container = document.getElementById('bubblesContainer');
+    const sizes    = [8, 12, 16, 20, 24, 30, 10, 14, 18, 22];
+    const delays   = [0, 1.5, 3, 4.5, 6, 0.7, 2.2, 3.8, 5.1, 7];
+    const durations= [6, 8, 10, 7, 9, 11, 6.5, 8.5, 7.5, 12];
+    for (let i = 0; i < 30; i++) {
+      const b = document.createElement('span');
+      b.classList.add('bubble');
+      const s = sizes[i % sizes.length] + Math.random() * 10;
+      b.style.width  = s + 'px';
+      b.style.height = s + 'px';
+      b.style.left   = Math.random() * 100 + 'vw';
+      b.style.animationDuration  = (durations[i % durations.length] + Math.random() * 4) + 's';
+      b.style.animationDelay     = -(delays[i % delays.length] + Math.random() * 6) + 's';
+      container.appendChild(b);
+    }
+
+    function goPlay() {
+      window.location.href = 'rules.html';
+    }
+  </script>
+</body>
+</html>

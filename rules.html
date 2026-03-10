@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rules - Save Our Sea</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background-color: #012a4a;
+      background-image: url('pictures/underwater.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Nunito', sans-serif;
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .ocean-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,30,60,0.7) 0%, rgba(0,80,130,0.5) 100%);
+      z-index: 0;
+    }
+
+    /* Bubbles */
+    .bubbles-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .bubble {
+      position: absolute;
+      bottom: -80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.5), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: riseBubble linear infinite;
+    }
+    @keyframes riseBubble {
+      0%   { opacity: 0.8; }
+      100% { opacity: 0; bottom: 105vh; transform: translateX(15px); }
+    }
+
+    .page-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: #90e0ef;
+      text-shadow: 0 0 20px rgba(0,200,255,0.8), 2px 2px 0 rgba(0,0,0,0.4);
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 10;
+      letter-spacing: 3px;
+    }
+
+    /* Two column layout */
+    .layout {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      gap: 30px;
+      align-items: stretch;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* Rules box */
+    .rules-box {
+      flex: 1;
+      background: rgba(0, 40, 80, 0.7);
+      border: 2px solid rgba(0,180,216,0.5);
+      border-radius: 24px;
+      padding: 30px 35px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,150,200,0.2);
+    }
+    .rules-box h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: #00d4ff;
+      text-shadow: 0 0 12px rgba(0,212,255,0.7);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .rules-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .rules-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      color: #caf0f8;
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    .rule-num {
+      min-width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(0,180,216,0.5);
+      flex-shrink: 0;
+    }
+
+    /* Right side: sea lion */
+    .sealion-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex: 0 0 260px;
+    }
+    .sealion-frame {
+      background: rgba(0, 40, 80, 0.6);
+      border: 2px solid rgba(0,180,216,0.4);
+      border-radius: 24px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .sealion-img {
+      width: 170px;
+      filter: drop-shadow(0 0 18px rgba(0,200,255,0.6));
+      animation: floatSl 3.5s ease-in-out infinite alternate;
+    }
+    @keyframes floatSl {
+      0%   { transform: translateY(0) rotate(-4deg); }
+      100% { transform: translateY(-12px) rotate(4deg); }
+    }
+    .sealion-caption {
+      color: #90e0ef;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 0 8px rgba(0,180,216,0.6);
+    }
+
+    /* OK Button */
+    .btn-ok {
+      margin-top: 28px;
+      position: relative;
+      z-index: 10;
+      padding: 14px 70px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      color: #012a4a;
+      background: linear-gradient(135deg, #00d4ff, #0096c7, #0077b6);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 6px 25px rgba(0,180,216,0.7), 0 0 0 3px rgba(144,224,239,0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-ok::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -75%;
+      width: 50%; height: 200%;
+      background: rgba(255,255,255,0.35);
+      transform: skewX(-20deg);
+      animation: shine 2.5s ease-in-out infinite;
+    }
+    @keyframes shine {
+      0%   { left: -75%; }
+      100% { left: 125%; }
+    }
+    .btn-ok:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 10px 35px rgba(0,180,216,0.9), 0 0 0 4px rgba(144,224,239,0.5);
+    }
+    .btn-ok:active { transform: scale(0.97); }
+
+    @media (max-width: 650px) {
+      .layout { flex-direction: column-reverse; }
+      .sealion-side { flex: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ocean-overlay"></div>
+  <div class="bubbles-container" id="bubblesContainer"></div>
+
+  <div class="page-title">📋 Game Rules</div>
+
+  <div class="layout">
+    <!-- Rules Box -->
+    <div class="rules-box">
+      <h2>🌊 How to play</h2>
+      <ul class="rules-list">
+        <li>
+          <span class="rule-num">1</span>
+          <span>Enter your name to start your adventure in protecting the sea.
+
+</span>
+        </li>
+        <li>
+          <span class="rule-num">2</span>
+          <span>Watch the tutorial to see the ocean full of trash.</span>
+        </li>
+        <li>
+          <span class="rule-num">3</span>
+          <span>Create an environmentally friendly to-do list of activities you want to do.</span>
+        </li>
+        <li>
+          <span class="rule-num">4</span>
+          <span>Every activity you complete will clean up trash in the ocean.</span>
+        </li>
+        <li>
+          <span class="rule-num">5</span>
+          <span>Pressed Button <strong style="color:#00d4ff;">Done</strong> after completing activities to clean the sea</span>
+        </li>
+        <li>
+          <span class="rule-num">6</span>
+          <span>The more activities we complete, the cleaner our ocean becomes! 🐠</span>
+        </li>
+        <li>
+          <span class="rule-num">7</span>
+          <span>You can return to the To-Do List anytime to add or edit activities.</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Sea Lion Side -->
+    <div class="sealion-side">
+      <div class="sealion-frame">
+        <img class="sealion-img" src="pictures/sealion_smile.png" alt="Sea Lion" />
+        <div class="sealion-caption">"Lets we save<br>our sea together!" 🌊</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-ok" onclick="goNext()">OK, Ready!</button>
+
+  <script>
+    // Generate bubbles
+    const container = document.getElementById('bubblesContainer');
+    for (let i = 0; i < 20; i++) {
+      const b = document.createElement('span');
+      b.classList.add('bubble');
+      const s = 8 + Math.random() * 20;
+      b.style.width  = s + 'px';
+      b.style.height = s + 'px';
+      b.style.left   = Math.random() * 100 + 'vw';
+      b.style.animationDuration  = (7 + Math.random() * 6) + 's';
+      b.style.animationDelay     = -(Math.random() * 10) + 's';
+      container.appendChild(b);
+    }
+
+    function goNext() {
+      window.location.href = 'name.html';
+    }
+  </script>
+</body>
+</html>

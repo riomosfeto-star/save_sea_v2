@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial - Save Our Sea</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background-color: #012a4a;
+      background-image: url('pictures/underwater.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: 'Nunito', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* === OCEAN LAYERS === */
+    .sky-layer {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 18%;
+      background: linear-gradient(180deg, #001a33 0%, #002d5a 100%);
+      z-index: 0;
+    }
+
+    .ocean-body {
+      position: fixed;
+      top: 18%; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, #0096c7 0%, #0077b6 25%, #023e8a 60%, #03045e 100%);
+      z-index: 0;
+    }
+
+    /* Surface shimmer */
+    .surface {
+      position: fixed;
+      top: 17%; left: 0; right: 0;
+      height: 30px;
+      background: linear-gradient(90deg,
+        rgba(144,224,239,0) 0%,
+        rgba(144,224,239,0.6) 20%,
+        rgba(255,255,255,0.4) 40%,
+        rgba(144,224,239,0.6) 60%,
+        rgba(144,224,239,0) 100%
+      );
+      animation: surfaceShimmer 3s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+    @keyframes surfaceShimmer {
+      0%   { opacity: 0.7; transform: scaleX(1); }
+      100% { opacity: 1;   transform: scaleX(1.02); }
+    }
+
+    /* Bubbles */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.55), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: riseBubble linear infinite;
+      pointer-events: none;
+      z-index: 3;
+    }
+    @keyframes riseBubble {
+      0%   { opacity: 0.8; }
+      100% { opacity: 0; bottom: 105vh; transform: translateX(12px); }
+    }
+
+    /* === OCEAN FLOOR === */
+    .ocean-floor {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 12%;
+      background: linear-gradient(0deg, #5e3a1a 0%, #8b5e3c 50%, transparent 100%);
+      z-index: 2;
+    }
+    /* Seaweed */
+    .seaweed {
+      position: absolute;
+      bottom: 0;
+      width: 18px;
+      border-radius: 9px;
+      background: linear-gradient(0deg, #1d7324, #2dc44a);
+      transform-origin: bottom center;
+      animation: sway 3s ease-in-out infinite alternate;
+    }
+    @keyframes sway {
+      0%   { transform: rotate(-12deg); }
+      100% { transform: rotate(12deg); }
+    }
+
+    /* === SEA LION === */
+    .sealion-wrapper {
+      position: fixed;
+      z-index: 10;
+      top: 38%;
+      animation: swimAcross 12s linear infinite, bob 2.5s ease-in-out infinite;
+      left: -160px;
+    }
+    .sealion-img {
+      width: 130px;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+    }
+    @keyframes swimAcross {
+      0%   { left: -160px;           transform: scaleX(1); }
+      48%  { left: calc(100vw + 10px); transform: scaleX(1); }
+      50%  { left: calc(100vw + 10px); transform: scaleX(-1); }
+      98%  { left: -160px;            transform: scaleX(-1); }
+      100% { left: -160px;            transform: scaleX(1); }
+    }
+    @keyframes bob {
+      0%, 100% { margin-top: 0; }
+      50%       { margin-top: -18px; }
+    }
+
+    /* === TRASH ITEMS === */
+    /*
+     * TRASH PLACEHOLDER - Replace the content of .trash-placeholder with <img> matching your image file
+     * Example: <img src="pictures/trash1.png" alt="Trash" style="width:100%; height:100%; object-fit:contain;">
+     */
+    .trash-item {
+      position: fixed;
+      z-index: 5;
+      animation: trashFloat ease-in-out infinite alternate;
+    }
+    @keyframes trashFloat {
+      0%   { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(-8px) rotate(5deg); }
+    }
+    .trash-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed rgba(255,255,255,0.35);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 2px;
+      cursor: default;
+      user-select: none;
+    }
+
+    /* === OVERLAY UI === */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(0,10,30,0.6);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,180,216,0.3);
+    }
+    .top-bar h1 {
+      font-family: 'Fredoka One', cursive;
+      color: #00d4ff;
+      font-size: 1.4rem;
+      text-shadow: 0 0 12px rgba(0,212,255,0.7);
+    }
+    .greeting {
+      color: #caf0f8;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    /* Countdown ring */
+    .countdown-ring {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,40,80,0.7);
+      border: 2px solid rgba(0,180,216,0.5);
+      border-radius: 50px;
+      padding: 8px 18px;
+    }
+    .countdown-label { color: #90e0ef; font-size: 0.85rem; font-weight: 700; }
+    .countdown-num {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: #00d4ff;
+      text-shadow: 0 0 12px rgba(0,212,255,0.8);
+      min-width: 36px;
+      text-align: center;
+    }
+
+    /* Bottom message */
+    .bottom-msg {
+      position: fixed;
+      bottom: 14%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      background: rgba(0,30,60,0.8);
+      border: 2px solid rgba(0,180,216,0.4);
+      border-radius: 18px;
+      padding: 14px 30px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      white-space: nowrap;
+    }
+    .bottom-msg p {
+      color: #ff6b6b;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.15rem;
+      text-shadow: 0 0 10px rgba(255,100,100,0.6);
+    }
+    .bottom-msg span {
+      color: #caf0f8;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* Fade out overlay on redirect */
+    .fade-overlay {
+      position: fixed;
+      inset: 0;
+      background: #001a33;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+    .fade-overlay.active { opacity: 1; pointer-events: all; }
+  </style>
+</head>
+<body>
+
+  <div class="sky-layer"></div>
+  <div class="ocean-body"></div>
+  <div class="surface"></div>
+  <div class="ocean-floor" id="oceanFloor"></div>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <h1>🌊 Tutorial</h1>
+    <div class="greeting" id="greetingText">Hi, Hero!</div>
+    <div class="countdown-ring">
+      <span class="countdown-label">Continue in</span>
+      <span class="countdown-num" id="countdownNum">10</span>
+      <span class="countdown-label">seconds</span>
+    </div>
+  </div>
+
+  <!-- Sea Lion Swimming -->
+  <div class="sealion-wrapper">
+    <img class="sealion-img" src="pictures/sealion_smile.png" alt="Sea Lion" />
+  </div>
+
+  <!-- ============================================================
+       TRASH PLACEHOLDERS
+       To replace with real trash images, change the content of
+       div .trash-placeholder to:
+       <img src="pictures/FILE_NAME.png" alt="Trash" style="width:100%;height:100%;object-fit:contain;">
+       ============================================================ -->
+
+  <!-- Trash 1 -->
+  <div class="trash-item" style="left:8%; top:25%; width:55px; height:55px; animation-duration:2.8s; animation-delay:0s;">
+    <div class="trash-placeholder">Trash<br>1</div>
+  </div>
+  <!-- Trash 2 -->
+  <div class="trash-item" style="left:20%; top:40%; width:48px; height:48px; animation-duration:3.2s; animation-delay:-1s;">
+    <div class="trash-placeholder">Trash<br>2</div>
+  </div>
+  <!-- Trash 3 -->
+  <div class="trash-item" style="left:33%; top:22%; width:60px; height:60px; animation-duration:2.5s; animation-delay:-0.5s;">
+    <div class="trash-placeholder">Trash<br>3</div>
+  </div>
+  <!-- Trash 4 -->
+  <div class="trash-item" style="left:47%; top:35%; width:50px; height:50px; animation-duration:3.5s; animation-delay:-2s;">
+    <div class="trash-placeholder">Trash<br>4</div>
+  </div>
+  <!-- Trash 5 -->
+  <div class="trash-item" style="left:60%; top:28%; width:45px; height:45px; animation-duration:2.9s; animation-delay:-1.5s;">
+    <div class="trash-placeholder">Trash<br>5</div>
+  </div>
+  <!-- Trash 6 -->
+  <div class="trash-item" style="left:73%; top:42%; width:58px; height:58px; animation-duration:3.1s; animation-delay:-0.8s;">
+    <div class="trash-placeholder">Trash<br>6</div>
+  </div>
+  <!-- Trash 7 -->
+  <div class="trash-item" style="left:85%; top:32%; width:50px; height:50px; animation-duration:2.7s; animation-delay:-2.5s;">
+    <div class="trash-placeholder">Trash<br>7</div>
+  </div>
+  <!-- Trash 8 -->
+  <div class="trash-item" style="left:12%; top:55%; width:52px; height:52px; animation-duration:3.4s; animation-delay:-1.2s;">
+    <div class="trash-placeholder">Trash<br>8</div>
+  </div>
+  <!-- Trash 9 -->
+  <div class="trash-item" style="left:27%; top:62%; width:46px; height:46px; animation-duration:2.6s; animation-delay:-3s;">
+    <div class="trash-placeholder">Trash<br>9</div>
+  </div>
+  <!-- Trash 10 -->
+  <div class="trash-item" style="left:42%; top:58%; width:55px; height:55px; animation-duration:3.0s; animation-delay:-0.3s;">
+    <div class="trash-placeholder">Trash<br>10</div>
+  </div>
+  <!-- Trash 11 -->
+  <div class="trash-item" style="left:58%; top:65%; width:48px; height:48px; animation-duration:2.8s; animation-delay:-1.8s;">
+    <div class="trash-placeholder">Trash<br>11</div>
+  </div>
+  <!-- Trash 12 -->
+  <div class="trash-item" style="left:72%; top:57%; width:60px; height:60px; animation-duration:3.3s; animation-delay:-2.2s;">
+    <div class="trash-placeholder">Trash<br>12</div>
+  </div>
+  <!-- Trash 13 -->
+  <div class="trash-item" style="left:88%; top:60%; width:44px; height:44px; animation-duration:2.5s; animation-delay:-0.7s;">
+    <div class="trash-placeholder">Trash<br>13</div>
+  </div>
+  <!-- Trash 14 -->
+  <div class="trash-item" style="left:5%; top:70%; width:50px; height:50px; animation-duration:3.0s; animation-delay:-1.4s;">
+    <div class="trash-placeholder">Trash<br>14</div>
+  </div>
+  <!-- Trash 15 -->
+  <div class="trash-item" style="left:50%; top:72%; width:52px; height:52px; animation-duration:2.7s; animation-delay:-2.8s;">
+    <div class="trash-placeholder">Trash<br>15</div>
+  </div>
+
+  <!-- Bottom message -->
+  <div class="bottom-msg">
+    <p>🚨 Our ocean is full of trash!</p>
+    <span>Help Sea Lion clean the ocean...</span>
+  </div>
+
+  <div class="fade-overlay" id="fadeOverlay"></div>
+
+  <script>
+    // Greeting
+    const name = localStorage.getItem('playerName') || 'Hero';
+    document.getElementById('greetingText').textContent = 'Hi, ' + name + '! 👋';
+
+    // Seaweed decorations
+    const floor = document.getElementById('oceanFloor');
+    const seaweedPositions = [5,12,20,30,38,48,55,63,72,80,88,95];
+    seaweedPositions.forEach((pos, i) => {
+      const sw = document.createElement('div');
+      sw.className = 'seaweed';
+      sw.style.left = pos + '%';
+      sw.style.height = (40 + Math.random() * 40) + 'px';
+      sw.style.animationDelay = (i * 0.3) + 's';
+      sw.style.animationDuration = (2.5 + Math.random()) + 's';
+      floor.appendChild(sw);
+    });
+
+    // Bubbles
+    for (let i = 0; i < 20; i++) {
+      const b = document.createElement('div');
+      b.classList.add('bubble');
+      const s = 6 + Math.random() * 16;
+      b.style.width  = s + 'px';
+      b.style.height = s + 'px';
+      b.style.left   = Math.random() * 100 + 'vw';
+      b.style.bottom = '-80px';
+      b.style.animationDuration  = (7 + Math.random() * 7) + 's';
+      b.style.animationDelay     = -(Math.random() * 10) + 's';
+      document.body.appendChild(b);
+    }
+
+    // Countdown
+    let count = 10;
+    const numEl = document.getElementById('countdownNum');
+    const interval = setInterval(() => {
+      count--;
+      numEl.textContent = count;
+      if (count <= 3) numEl.style.color = '#ff6b6b';
+      if (count <= 0) {
+        clearInterval(interval);
+        document.getElementById('fadeOverlay').classList.add('active');
+        setTimeout(() => { window.location.href = 'todolist.html'; }, 1000);
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

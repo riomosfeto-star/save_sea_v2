@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name - Save Our Sea</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background-color: #012a4a;
+      background-image: url('pictures/underwater.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Nunito', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ocean-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,30,60,0.72) 0%, rgba(0,80,130,0.55) 100%);
+      z-index: 0;
+    }
+
+    .bubbles-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .bubble {
+      position: absolute;
+      bottom: -80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.5), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: riseBubble linear infinite;
+    }
+    @keyframes riseBubble {
+      0%   { opacity: 0.8; }
+      100% { opacity: 0; bottom: 105vh; transform: translateX(15px); }
+    }
+
+    /* Card */
+    .name-card {
+      position: relative;
+      z-index: 10;
+      background: rgba(0, 40, 85, 0.72);
+      border: 2px solid rgba(0,180,216,0.5);
+      border-radius: 30px;
+      padding: 50px 55px 45px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,150,200,0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      min-width: 360px;
+      max-width: 480px;
+      width: 90%;
+      animation: cardFloat 4s ease-in-out infinite alternate;
+    }
+    @keyframes cardFloat {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+
+    .sealion-img {
+      width: 110px;
+      filter: drop-shadow(0 0 16px rgba(0,200,255,0.6));
+      animation: bounce 3s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: rotate(-4deg) translateY(0); }
+      50%       { transform: rotate(4deg) translateY(-10px); }
+    }
+
+    .card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: #fff;
+      text-shadow: 0 0 18px rgba(0,220,255,0.8), 2px 2px 0 rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .card-subtitle {
+      color: #90e0ef;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      margin-top: -10px;
+    }
+
+    /* Input */
+    .input-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    label {
+      color: #caf0f8;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+    }
+    .name-input {
+      width: 100%;
+      padding: 14px 20px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(0, 60, 120, 0.6);
+      border: 2px solid rgba(0,180,216,0.5);
+      border-radius: 14px;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      caret-color: #00d4ff;
+    }
+    .name-input::placeholder { color: rgba(144,224,239,0.5); }
+    .name-input:focus {
+      border-color: #00d4ff;
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.25), 0 0 20px rgba(0,180,216,0.3);
+    }
+
+    /* Error */
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: center;
+      display: none;
+      text-shadow: 0 0 8px rgba(255,100,100,0.5);
+    }
+
+    /* Button */
+    .btn-ok {
+      width: 100%;
+      padding: 14px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: #012a4a;
+      background: linear-gradient(135deg, #00d4ff, #0096c7, #0077b6);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 25px rgba(0,180,216,0.7), 0 0 0 3px rgba(144,224,239,0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-ok::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -75%;
+      width: 50%; height: 200%;
+      background: rgba(255,255,255,0.3);
+      transform: skewX(-20deg);
+      animation: shine 2.5s ease-in-out infinite;
+    }
+    @keyframes shine { 0% { left: -75%; } 100% { left: 125%; } }
+    .btn-ok:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 10px 35px rgba(0,180,216,0.9), 0 0 0 4px rgba(144,224,239,0.5);
+    }
+    .btn-ok:active { transform: scale(0.97); }
+
+    /* Fish decorations */
+    .fish {
+      position: fixed;
+      font-size: 1.8rem;
+      animation: swimFish linear infinite;
+      z-index: 2;
+      opacity: 0.5;
+    }
+    @keyframes swimFish {
+      0%   { transform: translateX(-100px); }
+      49%  { transform: translateX(calc(100vw + 100px)); }
+      50%  { transform: translateX(calc(100vw + 100px)) scaleX(-1); }
+      99%  { transform: translateX(-100px) scaleX(-1); }
+      100% { transform: translateX(-100px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ocean-overlay"></div>
+  <div class="bubbles-container" id="bubblesContainer"></div>
+
+  <div class="fish" style="top:20%; animation-duration:16s; animation-delay:-5s;">🐠</div>
+  <div class="fish" style="top:75%; animation-duration:22s; animation-delay:-11s; font-size:1.3rem;">🐟</div>
+
+  <div class="name-card">
+    <img class="sealion-img" src="pictures/sealion_smile.png" alt="Sea Lion" />
+    <div class="card-title">What's Your Name?</div>
+    <div class="card-subtitle">Introduce yourself to the ocean! 🌊</div>
+    <div class="input-group">
+      <label for="nameInput">Ocean Hero Name:</label>
+      <input
+        type="text"
+        id="nameInput"
+        class="name-input"
+        placeholder="Write your name here..."
+        maxlength="30"
+        autocomplete="off"
+      />
+    </div>
+    <div class="error-msg" id="errorMsg">Please enter your name first! 🐬</div>
+    <button class="btn-ok" onclick="saveName()">NEXT ➜</button>
+  </div>
+
+  <script>
+    // Generate bubbles
+    const container = document.getElementById('bubblesContainer');
+    for (let i = 0; i < 18; i++) {
+      const b = document.createElement('span');
+      b.classList.add('bubble');
+      const s = 8 + Math.random() * 22;
+      b.style.width  = s + 'px';
+      b.style.height = s + 'px';
+      b.style.left   = Math.random() * 100 + 'vw';
+      b.style.animationDuration  = (7 + Math.random() * 6) + 's';
+      b.style.animationDelay     = -(Math.random() * 10) + 's';
+      container.appendChild(b);
+    }
+
+    // Pre-fill if name exists
+    const existing = localStorage.getItem('playerName');
+    if (existing) document.getElementById('nameInput').value = existing;
+
+    // Allow Enter key
+    document.getElementById('nameInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveName();
+    });
+
+    function saveName() {
+      const nameInput = document.getElementById('nameInput');
+      const name = nameInput.value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+
+      if (!name) {
+        errorMsg.style.display = 'block';
+        nameInput.style.borderColor = '#ff6b6b';
+        nameInput.focus();
+        return;
+      }
+
+      errorMsg.style.display = 'none';
+      localStorage.setItem('playerName', name);
+      window.location.href = 'tutorial.html';
+    }
+  </script>
+</body>
+</html>

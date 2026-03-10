@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cleaning the Sea - Save Our Sea</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background-color: #012a4a;
+      background-image: url('pictures/underwater.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: 'Nunito', sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* === OCEAN SCENE === */
+    .sky-layer {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 16%;
+      background: linear-gradient(180deg, #001a33 0%, #002d5a 100%);
+      z-index: 0;
+    }
+    .ocean-body {
+      position: fixed;
+      top: 16%; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, #0096c7 0%, #0077b6 25%, #023e8a 60%, #03045e 100%);
+      z-index: 0;
+    }
+    .surface {
+      position: fixed;
+      top: 15%; left: 0; right: 0;
+      height: 28px;
+      background: linear-gradient(90deg,
+        rgba(144,224,239,0) 0%,
+        rgba(144,224,239,0.6) 20%,
+        rgba(255,255,255,0.4) 40%,
+        rgba(144,224,239,0.6) 60%,
+        rgba(144,224,239,0) 100%
+      );
+      animation: surfaceShimmer 3s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+    @keyframes surfaceShimmer {
+      0%   { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    /* Bubbles */
+    .bubble {
+      position: fixed;
+      bottom: -80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.55), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: riseBubble linear infinite;
+      pointer-events: none;
+      z-index: 3;
+    }
+    @keyframes riseBubble {
+      0%   { opacity: 0.8; }
+      100% { opacity: 0; bottom: 105vh; transform: translateX(12px); }
+    }
+
+    /* Ocean floor */
+    .ocean-floor {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 12%;
+      background: linear-gradient(0deg, #5e3a1a 0%, #8b5e3c 50%, transparent 100%);
+      z-index: 2;
+    }
+    .seaweed {
+      position: absolute;
+      bottom: 0;
+      width: 16px;
+      border-radius: 8px;
+      background: linear-gradient(0deg, #1d7324, #2dc44a);
+      transform-origin: bottom center;
+      animation: sway 3s ease-in-out infinite alternate;
+    }
+    @keyframes sway {
+      0%   { transform: rotate(-12deg); }
+      100% { transform: rotate(12deg); }
+    }
+
+    /* Sea lion */
+    .sealion-wrapper {
+      position: fixed;
+      z-index: 8;
+      top: 40%;
+      animation: swimAcross 14s linear infinite, bob 2.5s ease-in-out infinite;
+      left: -160px;
+    }
+    .sealion-img {
+      width: 120px;
+      filter: drop-shadow(0 4px 14px rgba(0,0,0,0.35));
+    }
+    @keyframes swimAcross {
+      0%   { left: -160px;           transform: scaleX(1); }
+      48%  { left: calc(100vw + 10px); transform: scaleX(1); }
+      50%  { left: calc(100vw + 10px); transform: scaleX(-1); }
+      98%  { left: -160px;            transform: scaleX(-1); }
+      100% { left: -160px;            transform: scaleX(1); }
+    }
+    @keyframes bob {
+      0%, 100% { margin-top: 0; }
+      50%       { margin-top: -16px; }
+    }
+
+    /* === TRASH ITEMS === */
+    /*
+     * TRASH PLACEHOLDER - Same as tutorial.html
+     * Replace the content of .trash-placeholder with:
+     * <img src="pictures/FILE_NAME.png" alt="Trash" style="width:100%;height:100%;object-fit:contain;">
+     */
+    .trash-item {
+      position: fixed;
+      z-index: 5;
+      animation: trashFloat ease-in-out infinite alternate;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .trash-item.hidden {
+      opacity: 0;
+      transform: scale(0) rotate(30deg) !important;
+      pointer-events: none;
+    }
+    @keyframes trashFloat {
+      0%   { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(-8px) rotate(5deg); }
+    }
+    .trash-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed rgba(255,255,255,0.35);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 2px;
+      user-select: none;
+    }
+
+    /* === TOP BAR === */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px 24px;
+      background: rgba(0,10,30,0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,180,216,0.3);
+    }
+    .top-bar-title {
+      font-family: 'Fredoka One', cursive;
+      color: #00d4ff;
+      font-size: 1.4rem;
+      text-shadow: 0 0 12px rgba(0,212,255,0.7);
+    }
+    .top-bar-stats {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: 2px solid;
+    }
+    .pill-trash  { background: rgba(80,20,20,0.6); border-color: rgba(255,107,107,0.5); color: #ff6b6b; }
+    .pill-clean  { background: rgba(0,80,40,0.6);  border-color: rgba(6,214,160,0.6);  color: #06d6a0; }
+
+    /* Back button */
+    .btn-back {
+      padding: 9px 22px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: #012a4a;
+      background: linear-gradient(135deg, #00d4ff, #0096c7);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 14px rgba(0,180,216,0.5);
+    }
+    .btn-back:hover  { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,180,216,0.7); }
+    .btn-back:active { transform: scale(0.97); }
+
+    /* === CELEBRATION / STATUS PANEL === */
+    .status-panel {
+      position: fixed;
+      bottom: 13%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      min-width: 300px;
+      max-width: 90vw;
+      text-align: center;
+    }
+    .status-box {
+      background: rgba(0,20,50,0.85);
+      border: 2px solid rgba(0,180,216,0.4);
+      border-radius: 22px;
+      padding: 18px 28px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 35px rgba(0,0,0,0.5);
+    }
+    .status-box .status-emoji { font-size: 2.5rem; margin-bottom: 6px; }
+    .status-box .status-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: #fff;
+      text-shadow: 0 0 12px rgba(0,220,255,0.7);
+      margin-bottom: 4px;
+    }
+    .status-box .status-sub {
+      color: #90e0ef;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    /* CLEAN celebration */
+    .status-box.all-clean {
+      border-color: rgba(6,214,160,0.7);
+      background: rgba(0,60,40,0.85);
+      animation: celebPulse 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes celebPulse {
+      0%   { box-shadow: 0 6px 35px rgba(0,0,0,0.5), 0 0 20px rgba(6,214,160,0.3); }
+      100% { box-shadow: 0 6px 35px rgba(0,0,0,0.5), 0 0 50px rgba(6,214,160,0.7); }
+    }
+    .status-box.all-clean .status-title { color: #06d6a0; text-shadow: 0 0 18px rgba(6,214,160,0.9); }
+
+    /* Progress bar */
+    .progress-wrap {
+      margin-top: 14px;
+      background: rgba(0,30,60,0.6);
+      border: 1.5px solid rgba(0,180,216,0.3);
+      border-radius: 50px;
+      height: 18px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      border-radius: 50px;
+      background: linear-gradient(90deg, #06d6a0, #00b4d8);
+      transition: width 1s ease;
+      box-shadow: 0 0 10px rgba(6,214,160,0.5);
+    }
+    .progress-label {
+      color: #caf0f8;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    /* Sparkle particles on clean */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 30;
+      font-size: 1.2rem;
+      animation: sparkleAnim 1.5s ease-out forwards;
+    }
+    @keyframes sparkleAnim {
+      0%   { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-80px) scale(0.3); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sky-layer"></div>
+  <div class="ocean-body"></div>
+  <div class="surface"></div>
+  <div class="ocean-floor" id="oceanFloor"></div>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="top-bar-title">🌊 Ocean Condition</div>
+    <div class="top-bar-stats">
+      <div class="stat-pill pill-trash" id="pillTrash">15 Trash</div>
+      <div class="stat-pill pill-clean" id="pillClean">0 Cleaned</div>
+    </div>
+    <button class="btn-back" onclick="window.location.href='todolist.html'">◀ Back to To-Do List</button>
+  </div>
+
+  <!-- Sea Lion Swimming -->
+  <div class="sealion-wrapper">
+    <img class="sealion-img" src="pictures/sealion_smile.png" alt="Sea Lion" />
+  </div>
+
+  <!-- ============================================================
+       TRASH PLACEHOLDERS - 15 items
+       To replace with real trash images:
+       Change the content of .trash-placeholder to:
+       <img src="pictures/FILE_NAME.png" alt="Trash" style="width:100%;height:100%;object-fit:contain;">
+       ============================================================ -->
+
+  <div class="trash-item" id="trash-1"  style="left:8%;  top:25%; width:55px; height:55px; animation-duration:2.8s;">
+    <div class="trash-placeholder">Trash<br>1</div></div>
+
+  <div class="trash-item" id="trash-2"  style="left:20%; top:40%; width:48px; height:48px; animation-duration:3.2s; animation-delay:-1s;">
+    <div class="trash-placeholder">Trash<br>2</div></div>
+
+  <div class="trash-item" id="trash-3"  style="left:33%; top:22%; width:60px; height:60px; animation-duration:2.5s; animation-delay:-0.5s;">
+    <div class="trash-placeholder">Trash<br>3</div></div>
+
+  <div class="trash-item" id="trash-4"  style="left:47%; top:35%; width:50px; height:50px; animation-duration:3.5s; animation-delay:-2s;">
+    <div class="trash-placeholder">Trash<br>4</div></div>
+
+  <div class="trash-item" id="trash-5"  style="left:60%; top:28%; width:45px; height:45px; animation-duration:2.9s; animation-delay:-1.5s;">
+    <div class="trash-placeholder">Trash<br>5</div></div>
+
+  <div class="trash-item" id="trash-6"  style="left:73%; top:42%; width:58px; height:58px; animation-duration:3.1s; animation-delay:-0.8s;">
+    <div class="trash-placeholder">Trash<br>6</div></div>
+
+  <div class="trash-item" id="trash-7"  style="left:85%; top:32%; width:50px; height:50px; animation-duration:2.7s; animation-delay:-2.5s;">
+    <div class="trash-placeholder">Trash<br>7</div></div>
+
+  <div class="trash-item" id="trash-8"  style="left:12%; top:55%; width:52px; height:52px; animation-duration:3.4s; animation-delay:-1.2s;">
+    <div class="trash-placeholder">Trash<br>8</div></div>
+
+  <div class="trash-item" id="trash-9"  style="left:27%; top:62%; width:46px; height:46px; animation-duration:2.6s; animation-delay:-3s;">
+    <div class="trash-placeholder">Trash<br>9</div></div>
+
+  <div class="trash-item" id="trash-10" style="left:42%; top:58%; width:55px; height:55px; animation-duration:3.0s; animation-delay:-0.3s;">
+    <div class="trash-placeholder">Trash<br>10</div></div>
+
+  <div class="trash-item" id="trash-11" style="left:58%; top:65%; width:48px; height:48px; animation-duration:2.8s; animation-delay:-1.8s;">
+    <div class="trash-placeholder">Trash<br>11</div></div>
+
+  <div class="trash-item" id="trash-12" style="left:72%; top:57%; width:60px; height:60px; animation-duration:3.3s; animation-delay:-2.2s;">
+    <div class="trash-placeholder">Trash<br>12</div></div>
+
+  <div class="trash-item" id="trash-13" style="left:88%; top:60%; width:44px; height:44px; animation-duration:2.5s; animation-delay:-0.7s;">
+    <div class="trash-placeholder">Trash<br>13</div></div>
+
+  <div class="trash-item" id="trash-14" style="left:5%;  top:70%; width:50px; height:50px; animation-duration:3.0s; animation-delay:-1.4s;">
+    <div class="trash-placeholder">Trash<br>14</div></div>
+
+  <div class="trash-item" id="trash-15" style="left:50%; top:72%; width:52px; height:52px; animation-duration:2.7s; animation-delay:-2.8s;">
+    <div class="trash-placeholder">Trash<br>15</div></div>
+
+  <!-- Status panel -->
+  <div class="status-panel">
+    <div class="status-box" id="statusBox">
+      <div class="status-emoji" id="statusEmoji">🗑️</div>
+      <div class="status-title" id="statusTitle">Ocean Full of Trash</div>
+      <div class="status-sub"  id="statusSub">Complete more activities in the To-Do List!</div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">0 / 15 trash cleaned</div>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_TRASH = 15;
+
+    // Read completed todos from localStorage
+    const todos = JSON.parse(localStorage.getItem('todos') || '[]');
+    const doneCount = todos.filter(t => t.completed).length;
+    const removedCount = Math.min(doneCount, TOTAL_TRASH);
+    const remaining    = TOTAL_TRASH - removedCount;
+
+    // Update stats
+    document.getElementById('pillTrash').textContent = remaining + ' Trash';
+    document.getElementById('pillClean').textContent = removedCount + ' Cleaned';
+
+    // Progress bar (animate after short delay)
+    const pct = (removedCount / TOTAL_TRASH) * 100;
+    setTimeout(() => {
+      document.getElementById('progressBar').style.width = pct + '%';
+    }, 400);
+    document.getElementById('progressLabel').textContent =
+      removedCount + ' / ' + TOTAL_TRASH + ' trash cleaned';
+
+    // Hide trash items that have been cleaned
+    // Trash items are removed from the END of the list first (most recently completed)
+    for (let i = TOTAL_TRASH; i > remaining; i--) {
+      const el = document.getElementById('trash-' + i);
+      if (el) {
+        // Stagger the disappear animation
+        setTimeout(() => { el.classList.add('hidden'); }, (TOTAL_TRASH - i) * 120 + 300);
+      }
+    }
+
+    // Status message
+    const statusBox   = document.getElementById('statusBox');
+    const statusEmoji = document.getElementById('statusEmoji');
+    const statusTitle = document.getElementById('statusTitle');
+    const statusSub   = document.getElementById('statusSub');
+
+    if (remaining === 0) {
+      // All clean!
+      statusBox.classList.add('all-clean');
+      statusEmoji.textContent = '🎉';
+      statusTitle.textContent = 'Ocean is Clean!';
+      statusSub.textContent   = 'Congratulations! You are a true ocean hero! 🦭✨';
+      spawnSparkles();
+    } else if (remaining <= 5) {
+      statusEmoji.textContent = '😊';
+      statusTitle.textContent = 'Almost Clean!';
+      statusSub.textContent   = 'There are still ' + remaining + ' trash. Keep going!';
+    } else if (remaining <= 10) {
+      statusEmoji.textContent = '🌊';
+      statusTitle.textContent = 'Making Progress!';
+      statusSub.textContent   = 'There are still ' + remaining + ' trash. Keep completing your activities!';
+    } else {
+      statusEmoji.textContent = '🗑️';
+      statusTitle.textContent = 'Ocean Full of Trash';
+      statusSub.textContent   = 'Complete activities in the To-Do List to clean the ocean!';
+    }
+
+    // Seaweed
+    const floor = document.getElementById('oceanFloor');
+    [5,12,20,30,38,48,55,63,72,80,88,95].forEach((pos, i) => {
+      const sw = document.createElement('div');
+      sw.className = 'seaweed';
+      sw.style.left = pos + '%';
+      sw.style.height = (40 + Math.random() * 40) + 'px';
+      sw.style.animationDelay = (i * 0.3) + 's';
+      sw.style.animationDuration = (2.5 + Math.random()) + 's';
+      floor.appendChild(sw);
+    });
+
+    // Bubbles
+    for (let i = 0; i < 20; i++) {
+      const b = document.createElement('div');
+      b.classList.add('bubble');
+      const s = 6 + Math.random() * 16;
+      b.style.width  = s + 'px';
+      b.style.height = s + 'px';
+      b.style.left   = Math.random() * 100 + 'vw';
+      b.style.animationDuration  = (7 + Math.random() * 7) + 's';
+      b.style.animationDelay     = -(Math.random() * 10) + 's';
+      document.body.appendChild(b);
+    }
+
+    // Sparkle celebration
+    function spawnSparkles() {
+      const emojis = ['✨','🌟','⭐','💫','🎊','🎉','🐠','🐬','🦭'];
+      for (let i = 0; i < 25; i++) {
+        setTimeout(() => {
+          const sp = document.createElement('div');
+          sp.className = 'sparkle';
+          sp.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          sp.style.left = Math.random() * 90 + 5 + 'vw';
+          sp.style.top  = Math.random() * 70 + 15 + 'vh';
+          sp.style.animationDelay = Math.random() * 0.5 + 's';
+          document.body.appendChild(sp);
+          setTimeout(() => sp.remove(), 2000);
+        }, i * 80);
+      }
+      // Repeat celebration
+      setTimeout(spawnSparkles, 3000);
+    }
+  </script>
+</body>
+</html>

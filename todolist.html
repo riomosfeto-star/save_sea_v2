@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do List - Save Our Sea</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background-color: #012a4a;
+      background-image: url('pictures/underwater.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: 'Nunito', sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .ocean-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,30,60,0.75) 0%, rgba(0,80,130,0.6) 100%);
+      z-index: 0;
+    }
+
+    .bubbles-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .bubble {
+      position: absolute;
+      bottom: -80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.5), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: riseBubble linear infinite;
+    }
+    @keyframes riseBubble {
+      0%   { opacity: 0.8; }
+      100% { opacity: 0; bottom: 105vh; transform: translateX(12px); }
+    }
+
+    /* === LAYOUT === */
+    .page-wrapper {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px 50px;
+      gap: 20px;
+    }
+
+    /* Header */
+    .header {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      color: #fff;
+      text-shadow: 0 0 16px rgba(0,220,255,0.7), 2px 2px 0 rgba(0,0,0,0.4);
+    }
+    .header-stats {
+      display: flex;
+      gap: 10px;
+    }
+    .stat-badge {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: 2px solid;
+    }
+    .stat-badge.total   { background: rgba(0,40,80,0.7); border-color: rgba(0,180,216,0.5); color: #90e0ef; }
+    .stat-badge.done    { background: rgba(0,80,40,0.6); border-color: rgba(6,214,160,0.6); color: #06d6a0; }
+
+    /* Add task form */
+    .add-form {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      gap: 10px;
+      background: rgba(0,40,80,0.7);
+      border: 2px solid rgba(0,180,216,0.4);
+      border-radius: 20px;
+      padding: 14px 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+    .add-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      caret-color: #00d4ff;
+    }
+    .add-input::placeholder { color: rgba(144,224,239,0.5); }
+    .btn-add {
+      padding: 9px 22px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: #012a4a;
+      background: linear-gradient(135deg, #00d4ff, #0096c7);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 14px rgba(0,180,216,0.5);
+      white-space: nowrap;
+    }
+    .btn-add:hover  { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,180,216,0.7); }
+    .btn-add:active { transform: scale(0.97); }
+
+    /* Task list */
+    .task-list {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-card {
+      background: rgba(0,40,85,0.72);
+      border: 2px solid rgba(0,180,216,0.35);
+      border-radius: 18px;
+      padding: 16px 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      animation: slideIn 0.35s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .task-card.completed {
+      border-color: rgba(6,214,160,0.5);
+      background: rgba(0,60,40,0.55);
+      opacity: 0.75;
+    }
+    .task-card.removing {
+      animation: slideOut 0.4s ease forwards;
+    }
+    @keyframes slideOut {
+      to { opacity: 0; transform: translateY(10px) scale(0.95); }
+    }
+
+    .task-num {
+      min-width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0096c7, #023e8a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.9rem;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 8px rgba(0,150,200,0.4);
+    }
+    .task-card.completed .task-num {
+      background: linear-gradient(135deg, #06d6a0, #028a60);
+    }
+
+    .task-text-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+    .task-text {
+      color: #caf0f8;
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+    .task-card.completed .task-text {
+      text-decoration: line-through;
+      color: #06d6a0;
+    }
+    .edit-input {
+      width: 100%;
+      background: rgba(0,60,120,0.6);
+      border: 1.5px solid rgba(0,180,216,0.6);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      outline: none;
+      caret-color: #00d4ff;
+      display: none;
+    }
+
+    /* Task action buttons */
+    .task-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-task {
+      padding: 7px 14px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-edit {
+      background: linear-gradient(135deg, #ffd166, #f4845f);
+      color: #012a4a;
+      box-shadow: 0 3px 10px rgba(244,132,95,0.4);
+    }
+    .btn-edit:hover  { transform: scale(1.08); box-shadow: 0 5px 16px rgba(244,132,95,0.6); }
+    .btn-save {
+      background: linear-gradient(135deg, #06d6a0, #028a60);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(6,214,160,0.4);
+      display: none;
+    }
+    .btn-save:hover  { transform: scale(1.08); box-shadow: 0 5px 16px rgba(6,214,160,0.6); }
+    .btn-delete {
+      background: rgba(255,107,107,0.25);
+      color: #ff6b6b;
+      border: 1.5px solid rgba(255,107,107,0.4);
+      box-shadow: none;
+    }
+    .btn-delete:hover { background: rgba(255,107,107,0.4); transform: scale(1.08); }
+    .btn-done {
+      background: linear-gradient(135deg, #06d6a0, #028a60);
+      color: #fff;
+      box-shadow: 0 3px 12px rgba(6,214,160,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-done::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -75%;
+      width: 50%; height: 200%;
+      background: rgba(255,255,255,0.3);
+      transform: skewX(-20deg);
+      animation: shine 2.5s ease-in-out infinite;
+    }
+    @keyframes shine { 0% { left: -75%; } 100% { left: 125%; } }
+    .btn-done:hover  { transform: scale(1.08); box-shadow: 0 6px 20px rgba(6,214,160,0.7); }
+    .btn-done:active { transform: scale(0.96); }
+    .btn-done:disabled { opacity: 0.6; cursor: default; transform: none; }
+    .task-card.completed .btn-done { display: none; }
+    .task-card.completed .btn-edit { display: none; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(144,224,239,0.6);
+      display: none;
+    }
+    .empty-state p:first-child { font-size: 3rem; margin-bottom: 10px; }
+    .empty-state p:last-child  { font-weight: 700; font-size: 1rem; }
+
+    /* Done toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      z-index: 50;
+      background: linear-gradient(135deg, #06d6a0, #028a60);
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      padding: 14px 30px;
+      border-radius: 50px;
+      box-shadow: 0 6px 30px rgba(6,214,160,0.6);
+      transition: transform 0.4s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Redirect overlay */
+    .fade-overlay {
+      position: fixed;
+      inset: 0;
+      background: #001a33;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    .fade-overlay.active { opacity: 1; pointer-events: all; }
+
+    /* View sea button */
+    .btn-sea {
+      margin-top: 6px;
+      padding: 12px 36px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      color: #012a4a;
+      background: linear-gradient(135deg, #00d4ff, #0096c7);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 5px 20px rgba(0,180,216,0.6);
+    }
+    .btn-sea:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 28px rgba(0,180,216,0.8); }
+    .btn-sea:active { transform: scale(0.97); }
+  </style>
+</head>
+<body>
+
+  <div class="ocean-overlay"></div>
+  <div class="bubbles-container" id="bubblesContainer"></div>
+
+  <div class="page-wrapper">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-title">🌊 To-Do Sea</div>
+      <div class="header-stats">
+        <div class="stat-badge total" id="statTotal">0 Task</div>
+        <div class="stat-badge done"  id="statDone">0 Done</div>
+      </div>
+    </div>
+
+    <!-- Add task form -->
+    <div class="add-form">
+      <input
+        type="text"
+        class="add-input"
+        id="addInput"
+        placeholder="Add task..."
+        maxlength="100"
+        autocomplete="off"
+      />
+      <button class="btn-add" onclick="addTask()">+ Add</button>
+    </div>
+
+    <!-- Task list -->
+    <div class="task-list" id="taskList">
+      <div class="empty-state" id="emptyState">
+        <p>🌊</p>
+        <p>No activities yet. Let's add some!</p>
+      </div>
+    </div>
+
+    <!-- View sea button -->
+    <button class="btn-sea" onclick="viewSea()">🏖️ Check sea condition</button>
+
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast">✅ Great ! The sea getting better</div>
+
+  <div class="fade-overlay" id="fadeOverlay"></div>
+
+  <script>
+    // ---- STATE ----
+    let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+    let doneRedirectTimer = null;
+
+    // Render
+    function render() {
+      const list = document.getElementById('taskList');
+      const empty = document.getElementById('emptyState');
+
+      // Clear except empty state
+      Array.from(list.children).forEach(c => {
+        if (!c.classList.contains('empty-state')) c.remove();
+      });
+
+      const doneCount  = todos.filter(t => t.completed).length;
+      const totalCount = todos.length;
+      document.getElementById('statTotal').textContent = totalCount + ' Task';
+      document.getElementById('statDone').textContent  = doneCount + ' Done';
+
+      if (totalCount === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      todos.forEach((todo, idx) => {
+        const card = buildCard(todo, idx);
+        list.appendChild(card);
+      });
+    }
+
+    function buildCard(todo, idx) {
+      const card = document.createElement('div');
+      card.className = 'task-card' + (todo.completed ? ' completed' : '');
+      card.dataset.id = todo.id;
+
+      card.innerHTML = `
+        <div class="task-num">${idx + 1}</div>
+        <div class="task-text-wrap">
+          <div class="task-text" id="text-${todo.id}">${escHtml(todo.text)}</div>
+          <input class="edit-input" id="edit-${todo.id}" value="${escHtml(todo.text)}" maxlength="100" />
+        </div>
+        <div class="task-actions">
+          ${!todo.completed ? `<button class="btn-task btn-edit"   onclick="startEdit('${todo.id}')">✏️ Edit</button>` : ''}
+          ${!todo.completed ? `<button class="btn-task btn-save"   id="save-${todo.id}" onclick="saveEdit('${todo.id}')">💾 Save</button>` : ''}
+          <button class="btn-task btn-delete" onclick="deleteTask('${todo.id}')">🗑️</button>
+          ${!todo.completed ? `<button class="btn-task btn-done"   onclick="markDone('${todo.id}')">✅ Done</button>` : '<span style="color:#06d6a0; font-weight:700; font-size:0.85rem;">✔ Finish</span>'}
+        </div>
+      `;
+
+      return card;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ---- ACTIONS ----
+    function addTask() {
+      const input = document.getElementById('addInput');
+      const text  = input.value.trim();
+      if (!text) { input.focus(); return; }
+
+      todos.push({ id: Date.now() + '_' + Math.random(), text, completed: false });
+      saveTodos();
+      input.value = '';
+      input.focus();
+      render();
+    }
+
+    function deleteTask(id) {
+      const card = document.querySelector(`[data-id="${id}"]`);
+      if (card) {
+        card.classList.add('removing');
+        setTimeout(() => {
+          todos = todos.filter(t => t.id !== id);
+          saveTodos();
+          render();
+        }, 400);
+      }
+    }
+
+    function startEdit(id) {
+      const textEl = document.getElementById('text-' + id);
+      const inputEl = document.getElementById('edit-' + id);
+      const editBtn = document.querySelector(`[data-id="${id}"] .btn-edit`);
+      const saveBtn = document.getElementById('save-' + id);
+
+      textEl.style.display = 'none';
+      inputEl.style.display = 'block';
+      editBtn.style.display = 'none';
+      saveBtn.style.display = 'inline-block';
+      inputEl.focus();
+
+      inputEl.addEventListener('keydown', function handler(e) {
+        if (e.key === 'Enter') { saveEdit(id); inputEl.removeEventListener('keydown', handler); }
+        if (e.key === 'Escape') { cancelEdit(id); inputEl.removeEventListener('keydown', handler); }
+      });
+    }
+
+    function saveEdit(id) {
+      const inputEl = document.getElementById('edit-' + id);
+      const newText = inputEl.value.trim();
+      if (!newText) { inputEl.focus(); return; }
+
+      const todo = todos.find(t => t.id === id);
+      if (todo) { todo.text = newText; saveTodos(); render(); }
+    }
+
+    function cancelEdit(id) {
+      render();
+    }
+
+    function markDone(id) {
+      // Disable button immediately
+      const btn = document.querySelector(`[data-id="${id}"] .btn-done`);
+      if (btn) btn.disabled = true;
+
+      const todo = todos.find(t => t.id === id);
+      if (!todo || todo.completed) return;
+      todo.completed = true;
+      saveTodos();
+      render();
+
+      // Show toast
+      showToast();
+
+      // Redirect after 2 seconds
+      if (doneRedirectTimer) clearTimeout(doneRedirectTimer);
+      doneRedirectTimer = setTimeout(() => {
+        document.getElementById('fadeOverlay').classList.add('active');
+        setTimeout(() => { window.location.href = 'cleaning_sea.html'; }, 800);
+      }, 2000);
+    }
+
+    function viewSea() {
+      window.location.href = 'cleaning_sea.html';
+    }
+
+    // ---- HELPERS ----
+    function saveTodos() {
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    // ---- ADD INPUT ENTER ----
+    document.getElementById('addInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    // ---- BUBBLES ----
+    const container = document.getElementById('bubblesContainer');
+    for (let i = 0; i < 18; i++) {
+      const b = document.createElement('span');
+      b.classList.add('bubble');
+      const s = 8 + Math.random() * 20;
+      b.style.width  = s + 'px';
+      b.style.height = s + 'px';
+      b.style.left   = Math.random() * 100 + 'vw';
+      b.style.animationDuration  = (7 + Math.random() * 6) + 's';
+      b.style.animationDelay     = -(Math.random() * 10) + 's';
+      container.appendChild(b);
+    }
+
+    // ---- INIT ----
+    render();
+  </script>
+</body>
+</html>
