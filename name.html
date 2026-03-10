@@ -185,6 +185,35 @@
       99%  { transform: translateX(-100px) scaleX(-1); }
       100% { transform: translateX(-100px); }
     }
+
+    /* ===== MEDIA QUERIES ===== */
+
+    /* Tablet: 481px – 768px */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .name-card { padding: 36px 40px 32px; gap: 18px; }
+      .card-title { font-size: 1.7rem; }
+      .sealion-img { width: 90px; }
+    }
+
+    /* Mobile: ≤ 480px */
+    @media (max-width: 480px) {
+      .name-card { padding: 26px 20px 22px; gap: 14px; min-width: unset; border-radius: 22px; }
+      .card-title { font-size: 1.4rem; }
+      .card-subtitle { font-size: 0.86rem; }
+      .sealion-img { width: 78px; }
+      .name-input { padding: 11px 14px; font-size: 1rem; }
+      label { font-size: 0.86rem; }
+      .btn-ok { font-size: 1.2rem; padding: 12px; }
+    }
+
+    /* Print */
+    @media print {
+      .bubbles-container, .ocean-overlay, .fish { display: none; }
+      body { background-image: none; background-color: white; }
+      .name-card { backdrop-filter: none; border: 1px solid #ccc; background: white; box-shadow: none; }
+      .card-title, .card-subtitle, label { color: #012a4a; text-shadow: none; }
+      .btn-ok { display: none; }
+    }
   </style>
 </head>
 <body>

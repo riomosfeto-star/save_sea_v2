@@ -189,6 +189,30 @@
       99%  { transform: translateX(-100px) scaleX(-1); }
       100% { transform: translateX(-100px) scaleX(1); }
     }
+
+    /* ===== MEDIA QUERIES ===== */
+
+    /* Tablet: 481px – 768px */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .card { padding: 36px 40px 30px; gap: 14px; }
+      .btn-play { padding: 13px 45px; font-size: 1.4rem; }
+    }
+
+    /* Mobile: ≤ 480px */
+    @media (max-width: 480px) {
+      .card { padding: 28px 22px 24px; gap: 12px; border-radius: 22px; }
+      .btn-play { padding: 12px 34px; font-size: 1.2rem; letter-spacing: 2px; }
+      .wave-bar { height: 50px; }
+      .fish { font-size: 1.3rem; }
+    }
+
+    /* Print */
+    @media print {
+      .bubbles-container, .wave-bar, .fish, .ocean-overlay { display: none; }
+      body { background-image: none; background-color: #012a4a; }
+      .card { backdrop-filter: none; }
+      .btn-play { display: none; }
+    }
   </style>
 </head>
 <body>
